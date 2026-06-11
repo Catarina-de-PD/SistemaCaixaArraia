@@ -24,30 +24,6 @@ const produtos = [
 
 let carrinho = [];
 
-const ESTOQUE = {
-    "Cachorro Quente": 420,
-    "Cachorro Quente Vegetariano": 30,
-    "Bolo de Fubá": 36,
-    "Bolo de Milho": 34,
-    "Bolo de Cenoura": 24,
-    "Milho Cozido": 80,
-    "Chocolate Quente": 110,
-    "Quentão": 110,
-    "Pipoca": 100,
-    "Canjica": 200,
-    "Caldo": 66,
-    "Refrigerante": 272,
-    "Suco": 48,
-    "Paçoca": 50,
-    "Amendoim": 50,
-    "Maçã do Amor": 15
-};
-
-const CHAVE_ALERTAS = "alertasEstoqueArraia";
-
-let alertasExibidos = JSON.parse(
-    localStorage.getItem(CHAVE_ALERTAS) || "{}"
-);
 
 function renderizarProdutos(lista = produtos) {
     const grade = document.getElementById('gradeProdutos');
@@ -126,65 +102,6 @@ function limparCarrinho() {
     }
 }
 
-function verificarEstoque(pedido) {
-
-    const historico = JSON.parse(
-        localStorage.getItem("vendasArraia") || "[]"
-    );
-
-    const vendidos = {};
-
-    historico.forEach(venda => {
-
-        venda.itens.forEach(item => {
-
-            vendidos[item.nome] =
-                (vendidos[item.nome] || 0) + item.qtd;
-
-        });
-
-    });
-
-    pedido.itens.forEach(item => {
-
-        vendidos[item.nome] =
-            (vendidos[item.nome] || 0) + item.qtd;
-
-        const estoqueMaximo = ESTOQUE[item.nome];
-
-        console.log(
-        item.nome,
-        "Vendido:",
-        vendidos[item.nome],
-        "Estoque:",
-        estoqueMaximo
-);        
-
-        if(
-            estoqueMaximo !== undefined &&
-            vendidos[item.nome] > estoqueMaximo &&
-            !alertasExibidos[item.nome]
-        ){
-
-            alert(
-                `ATENÇÃO!\n\n` +
-                `${item.nome} ultrapassou o estoque disponível.\n\n` +
-                `Estoque: ${estoqueMaximo}\n` +
-                `Vendido: ${vendidos[item.nome]}`
-            );
-
-            alertasExibidos[item.nome] = true;
-
-            localStorage.setItem(
-                CHAVE_ALERTAS,
-                JSON.stringify(alertasExibidos)
-            );
-        }
-
-    });
-
-}
-
 function finalizarPedido() {
 
     if (carrinho.length === 0) {
@@ -235,8 +152,6 @@ function finalizarPedido() {
         'vendasArraia',
         JSON.stringify(historico)
     );
-
-    verificarEstoque(novoPedido);
 
     const btnFinalizar = document.querySelector('.btnFinalizar');
     const textoOriginalBotao = btnFinalizar.textContent;
