@@ -99,122 +99,93 @@ function limparCarrinho() {
 }
 
 function finalizarPedido() {
-    if (carrinho.length === 0) return alert("Carrinho vazio!");
+
+    if (carrinho.length === 0) {
+        alert("Carrinho vazio!");
+        return;
+    }
 
     let nomeCaixa = localStorage.getItem('identificacaoCaixa');
+
     if (!nomeCaixa) {
-        nomeCaixa = prompt("Digite a identificação deste dispositivo (Ex: Caixa 1, Caixa 2, Celular Ana):");
+
+        nomeCaixa = prompt(
+            "Digite a identificação deste dispositivo (Ex: Caixa 1, Caixa 2, Celular Ana):"
+        );
+
         if (!nomeCaixa) {
             alert("Operação cancelada. É necessário identificar o caixa.");
             return;
         }
+
         localStorage.setItem('identificacaoCaixa', nomeCaixa);
     }
 
-    const pagamento = "Pix"; 
-    if (!pagamento) return;
-
-    const btnFinalizar = document.querySelector('.btnFinalizar');
-    const textoOriginalBotao = btnFinalizar.textContent; 
-    
-    btnFinalizar.disabled = true;
-    btnFinalizar.textContent = "Enviando...";
-    btnFinalizar.style.opacity = "0.6"; 
-    btnFinalizar.style.cursor = "not-allowed";
-
-    const totalPedido = carrinho.reduce((acc, i) => acc + (i.preco * i.qtd), 0);
+    const totalPedido = carrinho.reduce(
+        (acc, item) => acc + (item.preco * item.qtd),
+        0
+    );
 
     const novoPedido = {
         id: "PED-" + Date.now(),
         data: new Date().toLocaleString("pt-BR"),
         caixa: nomeCaixa,
         total: totalPedido,
-        pagamento: pagamento,
-        itens: carrinho.map(i => ({
-            nome: i.nome,
-            qtd: i.qtd
+        itens: carrinho.map(item => ({
+            nome: item.nome,
+            qtd: item.qtd
         }))
     };
 
-    const historico = JSON.parse(localStorage.getItem('vendasArraia') || '[]');
+    // Salva localmente
+    const historico = JSON.parse(
+        localStorage.getItem('vendasArraia') || '[]'
+    );
+
     historico.push(novoPedido);
-    localStorage.setItem('vendasArraia', JSON.stringify(historico));
+
+    localStorage.setItem(
+        'vendasArraia',
+        JSON.stringify(historico)
+    );
+
+    const btnFinalizar = document.querySelector('.btnFinalizar');
+    const textoOriginalBotao = btnFinalizar.textContent;
+
+    btnFinalizar.disabled = true;
+    btnFinalizar.textContent = "Enviando...";
+    btnFinalizar.style.opacity = "0.6";
+    btnFinalizar.style.cursor = "not-allowed";
 
     fetch(URL_PLANILHA, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(novoPedido)
-})
-.then(async response => {
-
-    const texto = await response.text();
-
-    console.log("Status:", response.status);
-    console.log("Resposta:", texto);
-
-    try {
-        const json = JSON.parse(texto);
-
-        if (json.status === "success") {
-
-            alert(`Venda registrada com sucesso no ${nomeCaixa}!`);
-
-            carrinho = [];
-            atualizarInterface();
-
-        } else {
-
-            alert("Erro no Apps Script:\n" + json.mensagem);
-        }
-
-    } catch {
-
-        alert("Resposta inválida do servidor.");
-    }
-})
-.catch(error => {
-
-    console.error(error);
-
-    alert(
-        "Erro ao conectar com o Google Sheets.\n\n" +
-        error.message
-    );
-})
-.finally(() => {
-
-    btnFinalizar.disabled = false;
-    btnFinalizar.textContent = textoOriginalBotao;
-
-    btnFinalizar.style.opacity = "1";
-    btnFinalizar.style.cursor = "pointer";
-})
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(novoPedido)
+    })
     .then(() => {
+
         alert(`Venda registrada com sucesso no ${nomeCaixa}!`);
-        
+
         carrinho = [];
         atualizarInterface();
+
     })
     .catch(error => {
-        console.error("Erro ao enviar dados para o Google Sheets:", error);
-        alert("Venda salva localmente, mas houve um erro ao enviar para a planilha. Verifique a internet!");
+
+        console.error("Erro ao enviar:", error);
+
+        alert(
+            "Venda salva localmente, mas houve um problema ao enviar para a planilha."
+        );
+
     })
     .finally(() => {
+
         btnFinalizar.disabled = false;
-        btnFinalizar.textContent = textoOriginalBotao; 
+        btnFinalizar.textContent = textoOriginalBotao;
         btnFinalizar.style.opacity = "1";
         btnFinalizar.style.cursor = "pointer";
-    });
-}
 
-const inputBusca = document.getElementById('inputBusca');
-if (inputBusca) {
-    inputBusca.addEventListener('input', (e) => {
-        const termo = e.target.value.toLowerCase();
-        const filtrados = produtos.filter(p => p.nome.toLowerCase().includes(termo));
-        renderizarProdutos(filtrados);
     });
 }
 
