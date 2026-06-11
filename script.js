@@ -1,4 +1,4 @@
-const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbxb1uBLp0rsdukshHsUJa5oepSVHUozmsyHQDie988pn8RwPjuvnFE6GcT6ErubcZHK/exec"; 
+const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyM7n9yHHNICx-8qmLD4eeupz-aaVAqW0aj6g9ztmAx73N4rLX6KO17GCDj-2wD-7-fzA/exec"; 
 
 const produtos = [
     { id: 1, nome: "Cachorro Quente", preco: 6.0, imagem: "images/cachorroQuente.png" },
