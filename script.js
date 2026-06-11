@@ -20,6 +20,8 @@ const produtos = [
     { id: 15, nome: "Quentão", preco: 6.0, imagem: "images/quentao.png"},
     { id: 16, nome: "Chocolate Quente", preco: 6.0, imagem: "images/chocolateQuente.png"},
 ];
+
+
 let carrinho = [];
 function renderizarProdutos(lista = produtos) {
     const grade = document.getElementById('gradeProdutos');
