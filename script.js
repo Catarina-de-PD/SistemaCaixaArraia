@@ -160,9 +160,8 @@ function finalizarPedido() {
     btnFinalizar.style.cursor = "not-allowed";
 
     fetch(URL_PLANILHA, {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(novoPedido)
+    method: "POST",
+    body: JSON.stringify(novoPedido)
     })
     .then(() => {
 
