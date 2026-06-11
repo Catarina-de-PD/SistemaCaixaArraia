@@ -141,13 +141,56 @@ function finalizarPedido() {
     localStorage.setItem('vendasArraia', JSON.stringify(historico));
 
     fetch(URL_PLANILHA, {
-        method: "POST",
-        mode: "no-cors", 
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(novoPedido)
-    })
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify(novoPedido)
+})
+.then(async response => {
+
+    const texto = await response.text();
+
+    console.log("Status:", response.status);
+    console.log("Resposta:", texto);
+
+    try {
+        const json = JSON.parse(texto);
+
+        if (json.status === "success") {
+
+            alert(`Venda registrada com sucesso no ${nomeCaixa}!`);
+
+            carrinho = [];
+            atualizarInterface();
+
+        } else {
+
+            alert("Erro no Apps Script:\n" + json.mensagem);
+        }
+
+    } catch {
+
+        alert("Resposta inválida do servidor.");
+    }
+})
+.catch(error => {
+
+    console.error(error);
+
+    alert(
+        "Erro ao conectar com o Google Sheets.\n\n" +
+        error.message
+    );
+})
+.finally(() => {
+
+    btnFinalizar.disabled = false;
+    btnFinalizar.textContent = textoOriginalBotao;
+
+    btnFinalizar.style.opacity = "1";
+    btnFinalizar.style.cursor = "pointer";
+})
     .then(() => {
         alert(`Venda registrada com sucesso no ${nomeCaixa}!`);
         
