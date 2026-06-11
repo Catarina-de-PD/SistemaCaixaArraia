@@ -1,4 +1,4 @@
-const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbyM7n9yHHNICx-8qmLD4eeupz-aaVAqW0aj6g9ztmAx73N4rLX6KO17GCDj-2wD-7-fzA/exec"; 
+const URL_PLANILHA = "https://script.google.com/macros/s/AKfycbxb1uBLp0rsdukshHsUJa5oepSVHUozmsyHQDie988pn8RwPjuvnFE6GcT6ErubcZHK/exec"; 
 
 const produtos = [
     { id: 1, nome: "Cachorro Quente", preco: 6.0, imagem: "images/cachorroQuente.png" },
@@ -20,6 +20,28 @@ const produtos = [
     { id: 15, nome: "Quentão", preco: 6.0, imagem: "images/quentao.png"},
     { id: 16, nome: "Chocolate Quente", preco: 6.0, imagem: "images/chocolateQuente.png"},
 ];
+
+// Definição exata do estoque do Arraiá DAComp
+const ESTOQUE_MAXIMO = {
+    "cachorro quente": 420,
+    "cachorro quente vegetariano": 30,
+    "bolo de fubá": 36,
+    "bolo de milho": 34,
+    "bolo de cenoura": 24,
+    "milho cozido": 80,
+    "chocolate quente": 110,
+    "quentão": 110,
+    "pipoca": 100,
+    "canjica": 200,
+    "caldo": 66,
+    "refrigerante": 272,
+    "suco": 48,
+    "paçoca": 50,
+    "amendoim": 50,
+    "maçã do amor": 15
+};
+
+let avisosExibidos = {};
 
 let carrinho = [];
 function renderizarProdutos(lista = produtos) {
@@ -99,6 +121,21 @@ function limparCarrinho() {
     }
 }
 
+function obterTotalVendido(nomeProduto) {
+    const historico = JSON.parse(localStorage.getItem('vendasArraia') || '[]');
+    let total = 0;
+    
+    historico.forEach(pedido => {
+        pedido.itens.forEach(item => {
+            if (item.nome.toLowerCase().trim() === nomeProduto.toLowerCase().trim()) {
+                total += item.qtd;
+            }
+        });
+    });
+    
+    return total;
+}
+
 function finalizarPedido() {
     if (carrinho.length === 0) return alert("Carrinho vazio!");
 
@@ -114,6 +151,29 @@ function finalizarPedido() {
 
     const pagamento = "Pix"; 
     if (!pagamento) return;
+
+    let produtosExcedidos = [];
+    
+    carrinho.forEach(item => {
+        const nomeChave = item.nome.toLowerCase().trim();
+        const limiteEstoque = ESTOQUE_MAXIMO[nomeChave];
+        
+        if (limiteEstoque !== undefined) {
+            const jaVendido = obterTotalVendido(item.nome);
+            const totalComEstePedido = jaVendido + item.qtd;
+            
+            if (totalComEstePedido > limiteEstoque && !avisosExibidos[nomeChave]) {
+                produtosExcedidos.push(`${item.nome} (Estoque Máx: ${limiteEstoque} | Vendidos até agora: ${jaVendido})`);
+                avisosExibidos[nomeChave] = true; // Marca para nunca mais alertar nesta sessão
+            }
+        }
+    });
+
+    if (produtosExcedidos.length > 0) {
+        alert("⚠️ ATENÇÃO: LIMITE DE ESTOQUE EXCEDIDO!\n\n" + 
+              produtosExcedidos.join("\n") + 
+              "\n\nA venda continuará sendo processada normalmente.");
+    }
 
     const btnFinalizar = document.querySelector('.btnFinalizar');
     const textoOriginalBotao = btnFinalizar.textContent; 
@@ -151,7 +211,6 @@ function finalizarPedido() {
     })
     .then(() => {
         alert(`Venda registrada com sucesso no ${nomeCaixa}!`);
-        
         carrinho = [];
         atualizarInterface();
     })
