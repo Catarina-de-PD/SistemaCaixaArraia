@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa Arraiá DAComp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header"></header>
+
+    <main class="mainContainer">
+        <section class="areaProdutos">
+            <div class="cabecalhoSecao">
+                <h1 class="tituloSublinhado">Produtos</h1>
+                <input type="text" class="campoBusca" id="inputBusca" placeholder="Buscar Produto...">
+            </div>
+            <div class="gradeCards" id="gradeProdutos"></div>
+        </section>
+
+        <aside class="areaCarrinho">
+            <div class="carrinhoBox">
+                <div class="cabecalhoCarrinho">
+                    <h2 class="tituloSublinhado">Carrinho</h2>
+                    <span class="contadorBadge" id="cartBadge">0</span>
+                </div>
+
+                <div class="listaPedidos" id="listaCarrinho"></div>
+
+                <div class="painelTotal">
+                    <span class="txtTotal">Total:</span>
+                    <span class="valorTotal" id="valorTotal">R$ 0,00</span>
+                </div>
+
+                <div class="botoesAcao">
+                    <button class="btnExcluir" onclick="limparCarrinho()">Excluir</button>
+                    <button class="btnFinalizar" onclick="finalizarPedido()">Finalizar</button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <template id="produtoTemplate">
+        <div class="cardItem">
+            <div class="cardTexto">
+                <span class="nomeProduto"></span>
+                <span class="precoProduto"></span>
+            </div>
+            <img src="" alt="" class="cardImagem">
+            <button class="botaoAdicionar">+</button>
+        </div>
+    </template>
+
+    <script src="script.js"></script>
+</body>
+</html>

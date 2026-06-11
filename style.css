@@ -1,0 +1,259 @@
+body {
+    background-color: #e5d9c9;
+    color: #0f1310;
+    font-family: "Montserrat", sans-serif;
+    margin: 0;
+    height: 100vh; 
+    overflow: hidden; 
+}
+
+.header {
+    background-color: #5f4327;
+    height: 8vh;
+    width: 100%;
+}
+
+.mainContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 2rem;
+    gap: 2rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    height: 84vh; 
+    box-sizing: border-box;
+}
+
+.areaProdutos {
+    flex: 2 1 40rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+}
+
+.cabecalhoSecao {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-shrink: 0; 
+}
+
+.tituloSublinhado {
+    font-size: 1.75rem;
+    border-bottom: 0.2rem solid #000;
+    margin: 0;
+    padding-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.campoBusca {
+    padding: 0.6rem 1rem;
+    border-radius: 0.75rem;
+    border: 0.06rem solid #ccc;
+    background-color: #f0f0f0;
+    width: 100%;
+    max-width: 18rem;
+}
+
+.gradeCards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: 1.25rem;
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding-right: 0.5rem;
+}
+
+.cardItem {
+    background-color: #d9d9d9;
+    border: 0.06rem solid #8c8c8c;
+    border-radius: 0.6rem;
+    padding: 1rem;
+    position: relative;
+    height: 10rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cardTexto {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    text-align: left;
+}
+
+.nomeProduto { font-size: 0.9rem; }
+.precoProduto { font-size: 1rem;}
+
+.cardImagem {
+    width: 4.5rem;
+    height: 4.5rem;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.botaoAdicionar {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    background-color: #c93d3d;
+    color: white;
+    border: none;
+    border-radius: 0.3rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    cursor: pointer;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.areaCarrinho { 
+    flex: 1 1 20rem; 
+    height: 100%; 
+}
+
+.carrinhoBox {
+    border: 0.12rem solid #000;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    background-color: rgba(255,255,255,0.05);
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.cabecalhoCarrinho {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+}
+
+.contadorBadge {
+    background-color: #c93d3d;
+    color: white;
+    min-width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.listaPedidos {
+    background-color: #d9d9d9;
+    border-radius: 0.5rem;
+    padding: 0.6rem;
+    overflow-y: auto;
+    flex-grow: 1; 
+    max-height: 16rem; 
+}
+
+.linhaPedido {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.25rem;
+    border-bottom: 0.06rem solid #bcbcbc;
+}
+
+.pedidoInfo { text-align: left; }
+.pedidoNome { font-weight: bold; font-size: 0.85rem; display: block; }
+.pedidoSubtotal { font-size: 0.75rem; color: #555; }
+
+.controlesQuantidade {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btnCircular {
+    background-color: #c93d3d;
+    color: white;
+    border: none;
+    border-radius: 0.3rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.numQtd {
+    font-weight: bold;
+    font-size: 0.9rem;
+    min-width: 1rem;
+    text-align: center;
+}
+
+.painelTotal {
+    margin-top: 1.25rem;
+    background-color: #d9d9d9;
+    border: 0.06rem solid #8c8c8c;
+    border-radius: 0.6rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.valorTotal { font-size: 2rem; color: #1a5c32; font-weight: bold; }
+
+.botoesAcao {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    flex-shrink: 0;
+}
+
+.btnExcluir, .btnFinalizar {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 0.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.btnExcluir {
+    background-color: #d9c4b8;
+    color: #c93d3d;
+    border: 0.12rem solid #c93d3d;
+}
+
+.btnFinalizar {
+    background-color: #1a5c32;
+    color: white;
+    border: none;
+}
+
+.gradeCards::-webkit-scrollbar,
+.listaPedidos::-webkit-scrollbar {
+    width: 0.5rem;
+}
+
+.gradeCards::-webkit-scrollbar-track,
+.listaPedidos::-webkit-scrollbar-track {
+    background: #d9d9d9;
+    border-radius: 0.3rem;
+}
+
+.gradeCards::-webkit-scrollbar-thumb,
+.listaPedidos::-webkit-scrollbar-thumb {
+    background: #5f4327; 
+    border-radius: 0.3rem;
+}
+
+.gradeCards::-webkit-scrollbar-thumb:hover,
+.listaPedidos::-webkit-scrollbar-thumb:hover {
+    background: #c93d3d; 
+}
