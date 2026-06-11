@@ -21,14 +21,13 @@ const produtos = [
     { id: 16, nome: "Chocolate Quente", preco: 6.0, imagem: "images/chocolateQuente.png"},
 ];
 
-// Definição exata do estoque do Arraiá DAComp
 const ESTOQUE_MAXIMO = {
     "cachorro quente": 420,
     "cachorro quente vegetariano": 30,
     "bolo de fubá": 36,
     "bolo de milho": 34,
     "bolo de cenoura": 24,
-    "milho cozido": 80,
+    "milho cozido": 80, 
     "chocolate quente": 110,
     "quentão": 110,
     "pipoca": 100,
@@ -44,6 +43,7 @@ const ESTOQUE_MAXIMO = {
 let avisosExibidos = {};
 
 let carrinho = [];
+
 function renderizarProdutos(lista = produtos) {
     const grade = document.getElementById('gradeProdutos');
     const template = document.getElementById('produtoTemplate');
@@ -122,18 +122,26 @@ function limparCarrinho() {
 }
 
 function obterTotalVendido(nomeProduto) {
-    const historico = JSON.parse(localStorage.getItem('vendasArraia') || '[]');
-    let total = 0;
-    
-    historico.forEach(pedido => {
-        pedido.itens.forEach(item => {
-            if (item.nome.toLowerCase().trim() === nomeProduto.toLowerCase().trim()) {
-                total += item.qtd;
+    try {
+        const historico = JSON.parse(localStorage.getItem('vendasArraia') || '[]');
+        let total = 0;
+        
+        historico.forEach(pedido => {
+            if (pedido && Array.isArray(pedido.itens)) {
+                pedido.itens.forEach(item => {
+                    if (item && item.nome) {
+                        if (item.nome.toLowerCase().trim() === nomeProduto.toLowerCase().trim()) {
+                            total += (item.qtd || 0);
+                        }
+                    }
+                });
             }
         });
-    });
-    
-    return total;
+        return total;
+    } catch (e) {
+        console.error("Erro ao ler histórico para o estoque:", e);
+        return 0; 
+    }
 }
 
 function finalizarPedido() {
@@ -152,27 +160,31 @@ function finalizarPedido() {
     const pagamento = "Pix"; 
     if (!pagamento) return;
 
-    let produtosExcedidos = [];
-    
-    carrinho.forEach(item => {
-        const nomeChave = item.nome.toLowerCase().trim();
-        const limiteEstoque = ESTOQUE_MAXIMO[nomeChave];
+    try {
+        let produtosExcedidos = [];
         
-        if (limiteEstoque !== undefined) {
-            const jaVendido = obterTotalVendido(item.nome);
-            const totalComEstePedido = jaVendido + item.qtd;
+        carrinho.forEach(item => {
+            const nomeChave = item.nome.toLowerCase().trim();
+            const limiteEstoque = ESTOQUE_MAXIMO[nomeChave];
             
-            if (totalComEstePedido > limiteEstoque && !avisosExibidos[nomeChave]) {
-                produtosExcedidos.push(`${item.nome} (Estoque Máx: ${limiteEstoque} | Vendidos até agora: ${jaVendido})`);
-                avisosExibidos[nomeChave] = true; // Marca para nunca mais alertar nesta sessão
+            if (limiteEstoque !== undefined) {
+                const jaVendido = obterTotalVendido(item.nome);
+                const totalComEstePedido = jaVendido + item.qtd;
+                
+                if (totalComEstePedido > limiteEstoque && !avisosExibidos[nomeChave]) {
+                    produtosExcedidos.push(`${item.nome} (Máx: ${limiteEstoque} | Já vendidos: ${jaVendido})`);
+                    avisosExibidos[nomeChave] = true; 
+                }
             }
-        }
-    });
+        });
 
-    if (produtosExcedidos.length > 0) {
-        alert("⚠️ ATENÇÃO: LIMITE DE ESTOQUE EXCEDIDO!\n\n" + 
-              produtosExcedidos.join("\n") + 
-              "\n\nA venda continuará sendo processada normalmente.");
+        if (produtosExcedidos.length > 0) {
+            alert("ATENÇÃO: LIMITE DE ESTOQUE EXCEDIDO!\n\n" + 
+                  produtosExcedidos.join("\n") + 
+                  "\n\nA venda continuará sendo processada normalmente.");
+        }
+    } catch (erroEstoque) {
+        console.error("Erro na verificação do estoque:", erroEstoque);
     }
 
     const btnFinalizar = document.querySelector('.btnFinalizar');
