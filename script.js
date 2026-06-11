@@ -24,7 +24,6 @@ const produtos = [
 
 let carrinho = [];
 
-
 function renderizarProdutos(lista = produtos) {
     const grade = document.getElementById('gradeProdutos');
     const template = document.getElementById('produtoTemplate');
