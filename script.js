@@ -21,29 +21,7 @@ const produtos = [
     { id: 16, nome: "Chocolate Quente", preco: 6.0, imagem: "images/chocolateQuente.png"},
 ];
 
-const ESTOQUE_MAXIMO = {
-    "cachorro quente": 420,
-    "cachorro quente vegetariano": 30,
-    "bolo de fubá": 36,
-    "bolo de milho": 34,
-    "bolo de cenoura": 24,
-    "milho cozido": 80, 
-    "chocolate quente": 110,
-    "quentão": 110,
-    "pipoca": 100,
-    "canjica": 200,
-    "caldo": 66,
-    "refrigerante": 272,
-    "suco": 48,
-    "paçoca": 50,
-    "amendoim": 50,
-    "maçã do amor": 15
-};
-
-let avisosExibidos = {};
-
 let carrinho = [];
-
 function renderizarProdutos(lista = produtos) {
     const grade = document.getElementById('gradeProdutos');
     const template = document.getElementById('produtoTemplate');
@@ -121,29 +99,6 @@ function limparCarrinho() {
     }
 }
 
-function obterTotalVendido(nomeProduto) {
-    try {
-        const historico = JSON.parse(localStorage.getItem('vendasArraia') || '[]');
-        let total = 0;
-        
-        historico.forEach(pedido => {
-            if (pedido && Array.isArray(pedido.itens)) {
-                pedido.itens.forEach(item => {
-                    if (item && item.nome) {
-                        if (item.nome.toLowerCase().trim() === nomeProduto.toLowerCase().trim()) {
-                            total += (item.qtd || 0);
-                        }
-                    }
-                });
-            }
-        });
-        return total;
-    } catch (e) {
-        console.error("Erro ao ler histórico para o estoque:", e);
-        return 0; 
-    }
-}
-
 function finalizarPedido() {
     if (carrinho.length === 0) return alert("Carrinho vazio!");
 
@@ -159,33 +114,6 @@ function finalizarPedido() {
 
     const pagamento = "Pix"; 
     if (!pagamento) return;
-
-    try {
-        let produtosExcedidos = [];
-        
-        carrinho.forEach(item => {
-            const nomeChave = item.nome.toLowerCase().trim();
-            const limiteEstoque = ESTOQUE_MAXIMO[nomeChave];
-            
-            if (limiteEstoque !== undefined) {
-                const jaVendido = obterTotalVendido(item.nome);
-                const totalComEstePedido = jaVendido + item.qtd;
-                
-                if (totalComEstePedido > limiteEstoque && !avisosExibidos[nomeChave]) {
-                    produtosExcedidos.push(`${item.nome} (Máx: ${limiteEstoque} | Já vendidos: ${jaVendido})`);
-                    avisosExibidos[nomeChave] = true; 
-                }
-            }
-        });
-
-        if (produtosExcedidos.length > 0) {
-            alert("ATENÇÃO: LIMITE DE ESTOQUE EXCEDIDO!\n\n" + 
-                  produtosExcedidos.join("\n") + 
-                  "\n\nA venda continuará sendo processada normalmente.");
-        }
-    } catch (erroEstoque) {
-        console.error("Erro na verificação do estoque:", erroEstoque);
-    }
 
     const btnFinalizar = document.querySelector('.btnFinalizar');
     const textoOriginalBotao = btnFinalizar.textContent; 
@@ -223,6 +151,7 @@ function finalizarPedido() {
     })
     .then(() => {
         alert(`Venda registrada com sucesso no ${nomeCaixa}!`);
+        
         carrinho = [];
         atualizarInterface();
     })
