@@ -152,11 +152,19 @@ function verificarEstoque(pedido) {
 
         const estoqueMaximo = ESTOQUE[item.nome];
 
-        if (
+        console.log(
+        item.nome,
+        "Vendido:",
+        vendidos[item.nome],
+        "Estoque:",
+        estoqueMaximo
+);        
+
+        if(
             estoqueMaximo !== undefined &&
             vendidos[item.nome] > estoqueMaximo &&
             !alertasExibidos[item.nome]
-        ) {
+        ){
 
             alert(
                 `ATENÇÃO!\n\n` +
