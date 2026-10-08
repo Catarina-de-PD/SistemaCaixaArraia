@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle · Luau da Comp</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="ctrl">
+<header>
+  <h1>Controle da retirada</h1>
+  <span id="conexao"></span>
+</header>
+<main>
+  <div id="proximo"></div>
+  <h2 class="subt">Na fila</h2>
+  <div id="fila"></div>
+  <h2 class="subt">Entregues</h2>
+  <div id="entregues"></div>
+</main>
+
+<script src="shared.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let conhecidos = null;
+
+function resumo(p) { return p.itens.map(i => `${i.qtd}x ${i.nome}`).join(', '); }
+function minutos(t) { return Math.max(0, Math.floor((Date.now() - t) / 60000)); }
+
+async function entregar(p, btn) {
+  btn.disabled = true; // evita toque duplo
+  const r = await mudarStatus(p.num, 'entregue');
+  if (r.erro) { alert(r.erro); btn.disabled = false; }
+}
+
+function render() {
+  const s = load();
+  const fila = s.pedidos.filter(p => p.status === 'aguardando').sort((a, b) => a.num - b.num);
+
+  if (conhecidos !== null && fila.some(p => !conhecidos.has(p.num))) navigator.vibrate?.(200);
+  conhecidos = new Set(fila.map(p => p.num));
+
+  const prox = $('proximo'); prox.innerHTML = '';
+  if (!fila.length) {
+    prox.appendChild(el('div', 'vazio', 'Nenhum pedido aguardando.'));
+  } else {
+    const p = fila[0], box = el('div', 'ctrlProx');
+    box.append(el('div', null, 'Próximo a retirar'), el('div', 'num', '#' + p.num), el('div', null, `há ${minutos(p.hora)} min`));
+    const ul = el('ul'); p.itens.forEach(i => ul.appendChild(el('li', null, `${i.qtd}x ${i.nome}`)));
+    const b = el('button', 'btnGrande', `Entregar #${p.num}`);
+    b.onclick = () => entregar(p, b);
+    box.append(ul, b); prox.appendChild(box);
+  }
+
+  const f = $('fila'); f.innerHTML = '';
+  fila.slice(1).forEach(p => {
+    const l = el('div', 'ctrlItem'), t = el('div');
+    t.append(el('b', null, '#' + p.num), el('small', null, resumo(p)));
+    const b = el('button', 'mini', 'Entregar');
+    b.onclick = () => { if (confirm(`Entregar #${p.num} fora da ordem?`)) entregar(p, b); };
+    l.append(t, b); f.appendChild(l);
+  });
+  if (fila.length < 2) f.appendChild(el('div', 'vazio', 'Fila vazia.'));
+
+  const e = $('entregues'); e.innerHTML = '';
+  s.pedidos.filter(p => p.status === 'entregue').sort((a, b) => b.horaEntrega - a.horaEntrega).slice(0, 4).forEach(p => {
+    const l = el('div', 'ctrlItem'), t = el('div');
+    t.append(el('b', null, '#' + p.num), el('small', null, resumo(p)));
+    const b = el('button', 'mini', 'Desfazer');
+    b.onclick = () => mudarStatus(p.num, 'aguardando');
+    l.append(t, b); e.appendChild(l);
+  });
+}
+
+setInterval(render, 30000); // atualiza o "há X min"
+iniciar(render);
+</script>
+</body>
+</html>

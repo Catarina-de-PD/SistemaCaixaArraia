@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caixa do Luau da Comp</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Caixa do Luau da Comp</h1>
+  <nav class="abas">
+    <button id="abaVenda" class="ativa">Venda</button>
+    <button id="abaEstoque">Estoque e pedidos</button>
+  </nav>
+  <span id="conexao"></span>
+</header>
+
+<main>
+  <div class="venda" id="telaVenda">
+    <section class="painel">
+      <div class="topo">
+        <h2>Produtos</h2>
+        <input class="busca" id="busca" type="search" placeholder="Buscar produto...">
+      </div>
+      <div class="rolavel" id="produtos"></div>
+    </section>
+    <aside class="painel carrinho">
+      <h2>Pedido</h2>
+      <div class="lista" id="lista"></div>
+      <div class="total"><span>Total</span><strong id="total">R$ 0,00</strong></div>
+      <div class="troco">
+        <label for="recebido">Recebido</label>
+        <input id="recebido" type="number" min="0" step="0.5" inputmode="decimal" placeholder="R$">
+        <b id="troco"></b>
+      </div>
+      <div class="acoes">
+        <button class="btnLimpar" id="limpar">Limpar</button>
+        <button class="btnOk" id="finalizar">Finalizar</button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="duas" id="telaEstoque" hidden>
+    <section class="painel">
+      <h2>Estoque</h2>
+      <div class="resumoTotal">Arrecadado: <strong id="arrecadado"></strong> · <span id="qtdPedidos"></span></div>
+      <div class="rolavel"><table id="tabela"></table></div>
+    </section>
+    <section class="painel">
+      <h2>Pedidos</h2>
+      <div class="rolavel" id="pedidos"></div>
+      <div class="acoes"><button class="btnLimpar" id="zerar">Zerar evento (apagar tudo)</button></div>
+    </section>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script src="shared.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let carrinho = {};
+let busca = '';
+const norm = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function toast(msg, erro) {
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast on' + (erro ? ' erro' : '');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.className = 'toast', 2500);
+}
+
+function adicionar(id, d) {
+  const s = load(), it = item(id);
+  const nova = (carrinho[id] || 0) + d;
+  if (nova <= 0) delete carrinho[id];
+  else if (nova <= restante(s, it)) carrinho[id] = nova;
+  else toast('Sem mais estoque de ' + it.nome, true);
+  render();
+}
+
+function renderProdutos(s) {
+  const box = $('produtos'); box.innerHTML = '';
+  ['Tortinhas', 'Bebidas', 'Petiscos'].forEach(cat => {
+    const lista = CARDAPIO.filter(i => i.cat === cat && norm(i.nome).includes(norm(busca)));
+    if (!lista.length) return;
+    box.appendChild(el('div', 'grupo', cat));
+    const grade = el('div', 'grade');
+    lista.forEach(it => {
+      const r = restante(s, it), b = el('button', 'produto');
+      b.disabled = r <= 0;
+      b.append(el('span', 'emoji', it.emoji), el('span', null, it.nome), el('span', 'preco', R(it.preco)));
+      b.append(el('span', 'resta' + (r <= 5 ? ' baixo' : ''),
+        r === Infinity ? 'até acabar' : r <= 0 ? 'esgotado' : `restam ${r}`));
+      if (carrinho[it.id]) b.append(el('span', 'noCarrinho', carrinho[it.id]));
+      b.onclick = () => adicionar(it.id, 1);
+      grade.appendChild(b);
+    });
+    box.appendChild(grade);
+  });
+}
+
+function totalCarrinho() {
+  return Object.entries(carrinho).reduce((a, [id, q]) => a + item(id).preco * q, 0);
+}
+
+function renderCarrinho(s) {
+  // remove do carrinho o que acabou de esgotar em outra aba
+  Object.keys(carrinho).forEach(id => { const r = restante(s, item(id)); if (carrinho[id] > r) carrinho[id] = r; if (carrinho[id] <= 0) delete carrinho[id]; });
+  const lista = $('lista'); lista.innerHTML = '';
+  const ids = Object.keys(carrinho);
+  if (!ids.length) lista.appendChild(el('div', 'vazio', 'Toque em um produto para adicionar.'));
+  ids.forEach(id => {
+    const it = item(id), q = carrinho[id], l = el('div', 'linha');
+    const info = el('div'); info.append(el('b', null, `${q}x ${it.nome}`), el('small', null, R(it.preco * q)));
+    const c = el('div', 'qtd');
+    const m = el('button', null, '−'), p = el('button', null, '+');
+    m.onclick = () => adicionar(id, -1); p.onclick = () => adicionar(id, 1);
+    c.append(m, el('span', null, q), p);
+    l.append(info, c); lista.appendChild(l);
+  });
+  $('total').textContent = R(totalCarrinho());
+  $('finalizar').disabled = !ids.length;
+  atualizarTroco();
+}
+
+function atualizarTroco() {
+  const rec = parseFloat($('recebido').value), t = totalCarrinho();
+  $('troco').textContent = isNaN(rec) || !t ? '' : rec >= t ? 'Troco: ' + R(rec - t) : 'Faltam ' + R(t - rec);
+}
+
+function renderResumo(s) {
+  const v = vendidos(s), ativos = s.pedidos.filter(p => p.status !== 'cancelado');
+  $('arrecadado').textContent = R(ativos.reduce((a, p) => a + p.total, 0));
+  $('qtdPedidos').textContent = ativos.length + ' pedidos';
+  const t = $('tabela'); t.innerHTML = '';
+  const h = t.insertRow(); ['Item', 'Inicial', 'Vendido', 'Restante'].forEach((x, i) => { const th = document.createElement('th'); th.textContent = x; if (i) th.className = 'n'; h.appendChild(th); });
+  CARDAPIO.forEach(it => {
+    const r = t.insertRow(), rest = restante(s, it);
+    [it.nome, it.estoque ?? '—', v[it.id] || 0, rest === Infinity ? '—' : rest].forEach((x, i) => {
+      const c = r.insertCell(); c.textContent = x; if (i) c.className = 'n';
+      if (i === 3 && rest <= 0) c.className += ' zerado';
+    });
+  });
+  const box = $('pedidos'); box.innerHTML = '';
+  [...s.pedidos].reverse().forEach(p => {
+    const l = el('div', 'pedLinha ' + p.status);
+    l.append(el('span', null, `#${p.num} · ${p.itens.map(i => i.qtd + 'x ' + i.nome).join(', ')} · ${R(p.total)}` + (p.status === 'entregue' ? ' ✓' : '')));
+    if (p.status !== 'cancelado') {
+      const b = el('button', 'mini', 'Cancelar');
+      b.onclick = () => { if (confirm(`Cancelar pedido #${p.num}? O estoque volta.`)) mudarStatus(p.num, 'cancelado'); };
+      l.appendChild(b);
+    }
+    box.appendChild(l);
+  });
+}
+
+function render() { const s = load(); renderProdutos(s); renderCarrinho(s); renderResumo(s); }
+
+$('busca').oninput = e => { busca = e.target.value; render(); };
+$('recebido').oninput = atualizarTroco;
+$('limpar').onclick = () => { if (Object.keys(carrinho).length && confirm('Limpar pedido?')) { carrinho = {}; $('recebido').value = ''; render(); } };
+$('finalizar').onclick = async () => {
+  $('finalizar').disabled = true; // evita toque duplo
+  const r = await criarPedido(Object.entries(carrinho).map(([id, qtd]) => ({ id, qtd })));
+  if (r.erro) { toast(r.erro, true); render(); return; }
+  carrinho = {}; $('recebido').value = '';
+  toast(`Pedido #${r.pedido.num} enviado para a retirada`);
+  render();
+};
+$('zerar').onclick = () => {
+  if (confirm('Apagar TODOS os pedidos e zerar o estoque?') && confirm('Tem certeza? Isso não pode ser desfeito.')) zerarEvento();
+};
+function aba(venda) {
+  $('telaVenda').hidden = !venda; $('telaEstoque').hidden = venda;
+  $('abaVenda').classList.toggle('ativa', venda); $('abaEstoque').classList.toggle('ativa', !venda);
+}
+$('abaVenda').onclick = () => aba(true);
+$('abaEstoque').onclick = () => aba(false);
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'recebido') $('finalizar').click(); });
+
+iniciar(render);
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+[
+  { "id": "t-limao",   "cat": "Tortinhas", "nome": "Tortinha de limão",            "preco": 7,  "estoque": 100,  "emoji": "🍋" },
+  { "id": "t-ninho",   "cat": "Tortinhas", "nome": "Tortinha de ninho",            "preco": 7,  "estoque": 100,  "emoji": "🥛" },
+  { "id": "t-frango",  "cat": "Tortinhas", "nome": "Tortinha de frango",           "preco": 7,  "estoque": 100,  "emoji": "🍗" },
+  { "id": "t-legumes", "cat": "Tortinhas", "nome": "Tortinha de legumes e queijo", "preco": 7,  "estoque": 50,   "emoji": "🧀" },
+
+  { "id": "b-zero",    "cat": "Bebidas", "nome": "Coca-Cola Zero",  "preco": 6, "estoque": 50,   "emoji": "🥤" },
+  { "id": "b-fanta",   "cat": "Bebidas", "nome": "Fanta Laranja",   "preco": 6, "estoque": 25,   "emoji": "🥤" },
+  { "id": "b-guarana", "cat": "Bebidas", "nome": "Guaraná",         "preco": 6, "estoque": 25,   "emoji": "🥤" },
+  { "id": "b-coca",    "cat": "Bebidas", "nome": "Coca-Cola",       "preco": 6, "estoque": 50,   "emoji": "🥤" },
+  { "id": "b-uva",     "cat": "Bebidas", "nome": "Suco de uva",     "preco": 6, "estoque": 15,   "emoji": "🍇" },
+  { "id": "b-laranja", "cat": "Bebidas", "nome": "Suco de laranja", "preco": 6, "estoque": 15,   "emoji": "🍊" },
+  { "id": "b-cafe",    "cat": "Bebidas", "nome": "Café",            "preco": 6, "estoque": null, "emoji": "☕" },
+
+  { "id": "p-churros", "cat": "Petiscos", "nome": "Mini-churros", "preco": 12, "estoque": 24,   "emoji": "🍩" },
+  { "id": "p-salgado", "cat": "Petiscos", "nome": "Salgadinhos",  "preco": 12, "estoque": 40,   "emoji": "🥟" },
+  { "id": "p-pipoca",  "cat": "Petiscos", "nome": "Pipoca",       "preco": 4,  "estoque": null, "emoji": "🍿" }
+]
