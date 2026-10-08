@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirada · Luau da Comp</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="retirada">
+<header>
+  <h1>Retirada · Luau da Comp</h1>
+  <span id="contagem"></span>
+  <span id="conexao"></span>
+</header>
+<main><div class="fila" id="fila"></div></main>
+<div class="rodape" id="rodape"></div>
+
+<script src="shared.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let conhecidos = null;
+let audio;
+
+function beep() {
+  try {
+    audio = audio || new AudioContext();
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.connect(g); g.connect(audio.destination);
+    o.frequency.value = 880; g.gain.value = 0.15;
+    o.start(); o.stop(audio.currentTime + 0.18);
+  } catch {}
+}
+
+function minutos(t) { return Math.max(0, Math.floor((Date.now() - t) / 60000)); }
+
+function entregar(num) { mudarStatus(num, 'entregue'); }
+
+function render() {
+  const s = load();
+  const fila = s.pedidos.filter(p => p.status === 'aguardando').sort((a, b) => a.num - b.num);
+
+  // aviso sonoro quando chega pedido novo
+  if (conhecidos !== null && fila.some(p => !conhecidos.has(p.num))) beep();
+  conhecidos = new Set(fila.map(p => p.num));
+
+  $('contagem').textContent = fila.length ? `${fila.length} na fila` : '';
+  const box = $('fila'); box.innerHTML = '';
+
+  if (!fila.length) box.appendChild(el('div', 'vazioRet', 'Nenhum pedido aguardando'));
+
+  fila.forEach((p, idx) => {
+    const c = el('button', 'pedido' + (idx === 0 ? ' proximo' : ''));
+    const topo = el('div');
+    if (idx === 0) topo.appendChild(el('div', 'rotulo', 'PRÓXIMO A RETIRAR'));
+    topo.append(el('div', 'num', '#' + p.num), el('div', 'espera', `há ${minutos(p.hora)} min`));
+    const ul = el('ul');
+    p.itens.forEach(i => ul.appendChild(el('li', null, `${i.qtd}x ${i.nome}`)));
+    c.append(topo, ul);
+    c.title = 'Toque para marcar como entregue';
+    c.onclick = () => entregar(p.num);
+    box.appendChild(c);
+  });
+
+  const rod = $('rodape'); rod.innerHTML = '';
+  const ultimos = s.pedidos.filter(p => p.status === 'entregue')
+    .sort((a, b) => b.horaEntrega - a.horaEntrega).slice(0, 4);
+  rod.appendChild(el('span', null, 'Toque no pedido para entregar · Espaço/Enter entrega o próximo' + (ultimos.length ? ' · Entregues:' : '')));
+  ultimos.forEach(p => {
+    const b = el('button', null, `#${p.num} desfazer`);
+    b.onclick = () => mudarStatus(p.num, 'aguardando');
+    rod.appendChild(b);
+  });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== ' ' && e.key !== 'Enter') return;
+  e.preventDefault();
+  const prox = load().pedidos.filter(p => p.status === 'aguardando').sort((a, b) => a.num - b.num)[0];
+  if (prox) entregar(prox.num);
+});
+
+setInterval(render, 30000); // atualiza o "há X min"
+iniciar(render);
+</script>
+</body>
+</html>
