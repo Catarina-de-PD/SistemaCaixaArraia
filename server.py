@@ -1,4 +1,4 @@
-"""Caixa do Luau da Comp - servidor local. Uso: python server.py
+"""Caixa da Gamenight - servidor local. Uso: python server.py
 Guarda pedidos em estado.json (sobrevive a reinício) e serve as telas na rede local."""
 import json, os, socket, threading, time
 import urllib.request
@@ -159,7 +159,7 @@ def ip_local():
 
 if __name__ == '__main__':
     ip = ip_local()
-    print('\n=== Caixa do Luau da Comp ===')
+    print('\n=== Caixa da Gamenight ===')
     print(f'Caixa (notebook):     http://localhost:{PORTA}/caixa.html')
     print(f'Retirada (monitor):   http://localhost:{PORTA}/retirada.html')
     print(f'Controle (celular):   http://{ip}:{PORTA}/controle.html')
