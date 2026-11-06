@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Caixa do Luau da Comp</title>
+<title>Caixa da Gamenight 🎃</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>Caixa do Luau da Comp</h1>
+  <h1>Caixa da Gamenight 🎃</h1>
   <nav class="abas">
     <button id="abaVenda" class="ativa">Venda</button>
     <button id="abaEstoque">Estoque e pedidos</button>
@@ -81,7 +81,7 @@ function adicionar(id, d) {
 
 function renderProdutos(s) {
   const box = $('produtos'); box.innerHTML = '';
-  ['Tortinhas', 'Bebidas', 'Petiscos'].forEach(cat => {
+  ['Pizzas', 'Mousses', 'Bebidas'].forEach(cat => {
     const lista = CARDAPIO.filter(i => i.cat === cat && norm(i.nome).includes(norm(busca)));
     if (!lista.length) return;
     box.appendChild(el('div', 'grupo', cat));
